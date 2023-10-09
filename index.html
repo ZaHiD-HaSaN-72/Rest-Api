@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rest Countries API Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #262931;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #0a4638;
+            color: white;
+        }
+
+        #countrySelect {
+            border: 2px solid lightseagreen;
+            border-radius: 9px;
+            width: 100%;
+            padding: 10px;
+            font-weight: 800;
+            font-size: 16px;
+            background: transparent;
+            color: #fff;
+        }
+        option{
+            
+            color: black;
+            border-radius: 9px;
+        }
+
+        #countryInfo {
+            background-color: rgba(24, 49, 78, 0.203);
+            backdrop-filter: blur(5px);
+            border: 1px solid #cecdcd;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 400px;
+            color: #fefcfc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        #countryInfo:hover{
+            box-shadow: 0 0 20px  #505665;
+            transition: 0.4s;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Country Information</h1>
+    <select id="countrySelect">
+        <option value="">Select a Country</option>
+    </select>
+    <div id="countryInfo">
+        <!-- Country information will be displayed here -->
+    </div>
+    
+    <script>
+        const baseUrl = 'https://restcountries.com/v2/all';
+        const countrySelect = document.getElementById("countrySelect");
+        const countryInfo = document.getElementById("countryInfo");
+
+        // Function to fetch and display country information
+        function fetchCountryInfo(countryCode) {
+            fetch(`${baseUrl}`)
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    // Find the selected country by code
+                    const country = data.find((c) => c.alpha3Code === countryCode);
+
+                    // Display country information
+                    const countryData = `
+                        <h2>${country.name}</h2>
+                        <p>Capital: ${country.capital}</p>
+                        <p>Population: ${country.population}</p>
+                        <p>Region: ${country.region}</p>
+                        <p>Subregion: ${country.subregion}</p>
+                        <p>Area: ${country.area} square kilometers</p>
+                        <img src="${country.flags.png}" alt="${country.name} Flag" width="200">
+                    `;
+                    countryInfo.innerHTML = countryData;
+                })
+                .catch((error) => {
+                    console.error("Fetch error:", error);
+                });
+        }
+
+        // Event listener for the select element
+        countrySelect.addEventListener("change", () => {
+            const selectedCountryCode = countrySelect.value;
+            if (selectedCountryCode) {
+                fetchCountryInfo(selectedCountryCode);
+            } else {
+                countryInfo.innerHTML = ""; // Clear country info
+            }
+        });
+
+        // Fetch the list of countries when the page loads
+        fetch(baseUrl)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // Populate the select element with country names and codes
+                data.forEach((country) => {
+                    const option = document.createElement("option");
+                    option.value = country.alpha3Code;
+                    option.textContent = country.name;
+                    countrySelect.appendChild(option);
+                });
+            })
+            .catch((error) => {
+                console.error("Fetch error:", error);
+            });
+    </script>
+</body>
+</html>
